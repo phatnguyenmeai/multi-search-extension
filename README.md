@@ -19,6 +19,9 @@ Works on **Chrome**, **Microsoft Edge**, and **Firefox** (Manifest V3).
 - **Match case** and **whole word** toggles.
 - **Per-term match counts** shown next to each term.
 - Enable/disable individual terms without deleting them.
+- **Searches everywhere on the page** — the main document, **open Shadow DOM**
+  (web components), and **iframes**, including **cross-origin** ones.
+  Navigation steps through matches across every frame.
 - Remembers your terms, options, and palette between sessions.
 
 ## Usage
@@ -51,12 +54,20 @@ The toolbar popup lets you edit the default color palette and toggle whether
 | File | Purpose |
 |------|---------|
 | `manifest.json` | Manifest V3 definition (Chrome/Edge/Firefox). |
-| `content.js` | Injects the search bar, intercepts `Ctrl+F`, highlights matches. |
+| `content.js` | Runs in every frame: search bar (top frame), `Ctrl+F` interception, Shadow-DOM-aware highlighting. |
 | `content.css` | Styles for the search bar and highlights. |
-| `background.js` | Service worker — routes the keyboard command to the page. |
+| `background.js` | Service worker — keyboard command + cross-frame message routing. |
 | `popup.html` / `popup.js` | Toolbar popup: launcher, palette editor, settings. |
 | `icons/` | Generated PNG icons. |
 | `gen_icons.py` | Regenerates the icons (`python3 gen_icons.py`). |
+
+## Known limitations
+
+- **Closed** Shadow DOM cannot be accessed by any extension and is skipped.
+- Sandboxed iframes without `allow-scripts` can't run the highlighter.
+- When navigating into a match inside a cross-origin iframe, the iframe
+  scrolls its own content into view, but it can't scroll the parent page —
+  so the match is visible only if the iframe itself is already on screen.
 
 ## License
 

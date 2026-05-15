@@ -53,9 +53,15 @@ document.getElementById("open").addEventListener("click", () => {
       if (api.runtime.lastError) {
         // Page predates the extension or is restricted — inject on demand.
         api.scripting
-          .insertCSS({ target: { tabId: tab.id }, files: ["content.css"] })
+          .insertCSS({
+            target: { tabId: tab.id, allFrames: true },
+            files: ["content.css"]
+          })
           .then(() =>
-            api.scripting.executeScript({ target: { tabId: tab.id }, files: ["content.js"] })
+            api.scripting.executeScript({
+              target: { tabId: tab.id, allFrames: true },
+              files: ["content.js"]
+            })
           )
           .then(() => api.tabs.sendMessage(tab.id, { action: "open" }))
           .then(() => window.close())
