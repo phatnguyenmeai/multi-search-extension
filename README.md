@@ -41,10 +41,22 @@ All the application code is shared between browsers — only `manifest.json`
 differs. The build script combines `core/` with a browser's manifest into a
 ready-to-load folder under `dist/`.
 
+**macOS / Linux** (`build.sh`):
+
 ```sh
 ./build.sh            # build chrome, edge and firefox
 ./build.sh firefox    # build only the named browser(s)
 ```
+
+**Windows** (`build.ps1`, PowerShell):
+
+```powershell
+.\build.ps1            # build chrome, edge and firefox
+.\build.ps1 firefox    # build only the named browser(s)
+```
+
+> If PowerShell blocks the script, run it once as
+> `powershell -ExecutionPolicy Bypass -File .\build.ps1`.
 
 Each run produces `dist/chrome/`, `dist/edge/` and/or `dist/firefox/`.
 
@@ -73,7 +85,8 @@ core/        Shared code — identical for every browser
 chrome/      Chrome-only manifest.json
 edge/        Edge-only manifest.json
 firefox/     Firefox-only manifest.json
-build.sh     Assembles dist/<browser>/ from core/ + a manifest
+build.sh     Assembles dist/<browser>/ from core/ + a manifest (macOS/Linux)
+build.ps1    Same, for Windows PowerShell
 dist/        Build output (git-ignored, loadable folders)
 ```
 
