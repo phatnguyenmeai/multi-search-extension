@@ -28,7 +28,7 @@ Works on **Chrome**, **Microsoft Edge**, and **Firefox** (Manifest V3).
 
 1. Open any web page and press **`Ctrl+F`** (or **`Ctrl+Shift+F`**, or click
    the toolbar icon → *Open search bar*).
-2. Type a term. Click **+ Add search term** for more.
+2. Type a term. Click **+ Add search term** — or press **`Ctrl+=`** — for more.
 3. Click the color swatch on a row to change that term's highlight color.
 4. Navigate matches with ▲ / ▼ or `Enter` / `Shift+Enter`. Press `Esc` to close.
 
