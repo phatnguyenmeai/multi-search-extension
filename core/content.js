@@ -349,7 +349,7 @@
       </div>
       <div class="ms-rows" id="ms-rows"></div>
       <div class="ms-footer">
-        <button class="ms-add" id="ms-add">+ Add search term</button>
+        <button class="ms-add" id="ms-add" title="Add search term (Ctrl+=)">+ Add search term</button>
       </div>`;
 
     document.documentElement.appendChild(panel);
@@ -358,12 +358,7 @@
     panel.querySelector("#ms-close").addEventListener("click", closePanel);
     panel.querySelector("#ms-prev").addEventListener("click", () => step(-1));
     panel.querySelector("#ms-next").addEventListener("click", () => step(1));
-    panel.querySelector("#ms-add").addEventListener("click", () => {
-      addTerm("");
-      renderRows();
-      const inputs = rowsEl.querySelectorAll(".ms-input");
-      if (inputs.length) inputs[inputs.length - 1].focus();
-    });
+    panel.querySelector("#ms-add").addEventListener("click", addTermAndFocus);
 
     panel.querySelectorAll(".ms-opt").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -477,6 +472,21 @@
       : (navCursor + 1) + " / " + total;
   }
 
+  // Append a fresh term and put the cursor in it. Used by the footer button
+  // and the Ctrl+= shortcut; only meaningful while the panel is open.
+  function addTermAndFocus() {
+    if (!IS_TOP || !state.open) return;
+    addTerm("");
+    renderRows();
+    const inputs = rowsEl.querySelectorAll(".ms-input");
+    if (inputs.length) {
+      const last = inputs[inputs.length - 1];
+      last.focus();
+      last.scrollIntoView({ block: "nearest" });
+    }
+    persist();
+  }
+
   function openPanel() {
     if (!IS_TOP) return;
     if (!panel) buildPanel();
@@ -529,6 +539,8 @@
       }
     } else if (payload.type === "open-panel") {
       openPanel();
+    } else if (payload.type === "add-term") {
+      addTermAndFocus();
     } else if (payload.type === "close-panel") {
       closePanel();
     }
@@ -569,6 +581,26 @@
         else sendToTop({ type: "open-panel" });
         return;
       }
+
+      // Ctrl+= (or numpad +) adds a new search term. Only acted on while the
+      // panel is open, so the browser's zoom shortcut is left alone otherwise.
+      const isAddTerm =
+        (e.ctrlKey || e.metaKey) &&
+        !e.shiftKey && !e.altKey &&
+        (e.key === "=" || e.key === "+");
+
+      if (isAddTerm) {
+        if (IS_TOP) {
+          if (!state.open) return;
+          e.preventDefault();
+          e.stopPropagation();
+          addTermAndFocus();
+        } else {
+          sendToTop({ type: "add-term" });
+        }
+        return;
+      }
+
       if (e.key === "Escape") {
         if (IS_TOP) {
           if (state.open) closePanel();

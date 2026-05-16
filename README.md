@@ -28,7 +28,7 @@ Works on **Chrome**, **Microsoft Edge**, and **Firefox** (Manifest V3).
 
 1. Open any web page and press **`Ctrl+F`** (or **`Ctrl+Shift+F`**, or click
    the toolbar icon → *Open search bar*).
-2. Type a term. Click **+ Add search term** for more.
+2. Type a term. Click **+ Add search term** — or press **`Ctrl+=`** — for more.
 3. Click the color swatch on a row to change that term's highlight color.
 4. Navigate matches with ▲ / ▼ or `Enter` / `Shift+Enter`. Press `Esc` to close.
 
@@ -109,6 +109,30 @@ dist/        Build output (git-ignored, loadable folders)
   `background.service_worker`.
 - **`firefox/`** — uses `background.scripts` (Firefox MV3 has no service
   worker) and adds the `browser_specific_settings.gecko` block.
+
+## Continuous delivery (Jenkins)
+
+The included `Jenkinsfile` builds all three packages and submits each to its
+store. It validates the JS/manifests, runs `build.sh`, zips
+`dist/<browser>-<version>.zip`, then publishes. Publishing runs automatically
+on the `main` branch and on tag builds; other branches build + package only.
+The `DRY_RUN` and `PUBLISH_*` build parameters let you skip submission.
+
+Before the first publish:
+
+1. Edit the store IDs in the `environment` block of the `Jenkinsfile`
+   (`CHROME_EXTENSION_ID`, `EDGE_PRODUCT_ID`; `FIREFOX_ADDON_ID` is preset).
+2. Add these Jenkins **Secret text** credentials:
+
+   | Store | Credential IDs |
+   |-------|----------------|
+   | Chrome Web Store | `cws-client-id`, `cws-client-secret`, `cws-refresh-token` |
+   | Edge Add-ons | `edge-api-key`, `edge-client-id` |
+   | Firefox AMO | `amo-jwt-issuer`, `amo-jwt-secret` |
+
+The Jenkins agent needs `bash`, `zip`, `curl`, `jq` and Node.js 18+. Store
+submission uses `chrome-webstore-upload-cli`, the Edge Add-ons API v1.1, and
+`web-ext sign` (all run via `npx`, no global installs).
 
 ## Known limitations
 
