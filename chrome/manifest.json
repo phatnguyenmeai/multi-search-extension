@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Multi Search — Multi-term Find & Highlight",
+  "version": "1.0.0",
+  "description": "Replace the browser's Ctrl+F with a search bar that finds multiple terms at once and highlights each in its own configurable color.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Multi Search settings",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle",
+      "all_frames": true,
+      "match_about_blank": true
+    }
+  ],
+  "commands": {
+    "toggle-search": {
+      "suggested_key": { "default": "Ctrl+Shift+F" },
+      "description": "Open the Multi Search bar"
+    }
+  }
+}
