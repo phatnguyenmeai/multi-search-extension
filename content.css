@@ -1,0 +1,179 @@
+/* Multi Search — injected UI and highlight styles. */
+
+#multi-search-panel {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 2147483647;
+  width: 360px;
+  max-width: calc(100vw - 24px);
+  display: none;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #1f2329;
+  background: #ffffff;
+  border: 1px solid #d4d7dd;
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+#multi-search-panel.ms-visible {
+  display: flex;
+}
+
+#multi-search-panel * {
+  box-sizing: border-box;
+}
+
+#multi-search-panel .ms-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #1a73e8;
+  color: #ffffff;
+}
+
+#multi-search-panel .ms-title {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+#multi-search-panel .ms-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+#multi-search-panel .ms-total {
+  font-size: 12px;
+  opacity: 0.95;
+  min-width: 64px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+#multi-search-panel button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 7px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  transition: background 0.12s ease;
+}
+
+#multi-search-panel .ms-header button:hover {
+  background: rgba(255, 255, 255, 0.34);
+}
+
+#multi-search-panel .ms-opt.ms-active {
+  background: #ffffff;
+  color: #1a73e8;
+  font-weight: 700;
+}
+
+#multi-search-panel .ms-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+#multi-search-panel .ms-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#multi-search-panel .ms-enabled {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  cursor: pointer;
+}
+
+#multi-search-panel .ms-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid #d4d7dd;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #1f2329;
+}
+
+#multi-search-panel .ms-input:focus {
+  outline: 2px solid #1a73e8;
+  outline-offset: -1px;
+}
+
+#multi-search-panel .ms-color {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #d4d7dd;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+
+#multi-search-panel .ms-count {
+  flex: none;
+  min-width: 30px;
+  text-align: center;
+  font-size: 12px;
+  color: #5f6368;
+  font-variant-numeric: tabular-nums;
+}
+
+#multi-search-panel .ms-remove {
+  flex: none;
+  background: #f1f3f4;
+  color: #5f6368;
+  padding: 4px 6px;
+}
+
+#multi-search-panel .ms-remove:hover {
+  background: #fbe0e0;
+  color: #c5221f;
+}
+
+#multi-search-panel .ms-footer {
+  padding: 0 10px 10px;
+}
+
+#multi-search-panel .ms-add {
+  width: 100%;
+  background: #f1f3f4;
+  color: #1a73e8;
+  font-weight: 600;
+  padding: 7px;
+}
+
+#multi-search-panel .ms-add:hover {
+  background: #e3eafc;
+}
+
+/* Highlights painted into the page. */
+span.multi-search-hl {
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+span.multi-search-hl.multi-search-current {
+  outline: 2px solid #1a73e8;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.35);
+}
