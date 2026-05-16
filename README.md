@@ -35,31 +35,67 @@ Works on **Chrome**, **Microsoft Edge**, and **Firefox** (Manifest V3).
 The toolbar popup lets you edit the default color palette and toggle whether
 `Ctrl+F` is intercepted.
 
+## Build
+
+All the application code is shared between browsers — only `manifest.json`
+differs. The build script combines `core/` with a browser's manifest into a
+ready-to-load folder under `dist/`.
+
+```sh
+./build.sh            # build chrome, edge and firefox
+./build.sh firefox    # build only the named browser(s)
+```
+
+Each run produces `dist/chrome/`, `dist/edge/` and/or `dist/firefox/`.
+
 ## Install (developer / unpacked)
+
+Run `./build.sh` first, then load the matching `dist/` folder.
 
 ### Chrome / Edge
 1. Go to `chrome://extensions` (or `edge://extensions`).
 2. Enable **Developer mode**.
-3. Click **Load unpacked** and select this repository folder.
+3. Click **Load unpacked** and select `dist/chrome` (or `dist/edge`).
 
 ### Firefox
 1. Go to `about:debugging#/runtime/this-firefox`.
-2. Click **Load Temporary Add-on…** and select `manifest.json`.
+2. Click **Load Temporary Add-on…** and select `dist/firefox/manifest.json`.
 
 > Note: browsers cannot run extensions on internal pages (`chrome://`,
 > `about:`, the add-on store, etc.).
 
 ## Project layout
 
+The source is split into shared code and per-browser manifests:
+
+```
+core/        Shared code — identical for every browser
+chrome/      Chrome-only manifest.json
+edge/        Edge-only manifest.json
+firefox/     Firefox-only manifest.json
+build.sh     Assembles dist/<browser>/ from core/ + a manifest
+dist/        Build output (git-ignored, loadable folders)
+```
+
+### `core/` — shared across all browsers
+
 | File | Purpose |
 |------|---------|
-| `manifest.json` | Manifest V3 definition (Chrome/Edge/Firefox). |
-| `content.js` | Runs in every frame: search bar (top frame), `Ctrl+F` interception, Shadow-DOM-aware highlighting. |
-| `content.css` | Styles for the search bar and highlights. |
-| `background.js` | Service worker — keyboard command + cross-frame message routing. |
-| `popup.html` / `popup.js` | Toolbar popup: launcher, palette editor, settings. |
-| `icons/` | Generated PNG icons. |
-| `gen_icons.py` | Regenerates the icons (`python3 gen_icons.py`). |
+| `core/content.js` | Runs in every frame: search bar (top frame), `Ctrl+F` interception, Shadow-DOM-aware highlighting. |
+| `core/content.css` | Styles for the search bar and highlights. |
+| `core/background.js` | Background script — keyboard command + cross-frame message routing. |
+| `core/popup.html` / `core/popup.js` | Toolbar popup: launcher, palette editor, settings. |
+| `core/icons/` | Generated PNG icons. |
+| `core/gen_icons.py` | Regenerates the icons (`python3 core/gen_icons.py`). |
+
+### Per-browser manifests
+
+`manifest.json` is the only file that varies between browsers:
+
+- **`chrome/`** and **`edge/`** — Chromium-based; identical Manifest V3 with a
+  `background.service_worker`.
+- **`firefox/`** — uses `background.scripts` (Firefox MV3 has no service
+  worker) and adds the `browser_specific_settings.gecko` block.
 
 ## Known limitations
 
