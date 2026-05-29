@@ -12,6 +12,9 @@ Works on **Chrome**, **Microsoft Edge**, and **Firefox** (Manifest V3).
   instead of the browser's single-term find (can be turned off in the popup).
 - **Multiple search terms** — add as many terms as you like; every term is
   searched and highlighted simultaneously.
+- **Search the selection** — select text on the page first, then open the bar
+  (`Ctrl+F`, `Ctrl+Shift+F`, or the toolbar button) and the first term is
+  pre-filled with your selection — including selections inside iframes.
 - **Per-term colors** — pick any highlight color for each term with a color
   picker. A configurable 8-color palette supplies defaults for new terms.
 - **Match navigation** — jump between matches with the ▲ / ▼ buttons or
@@ -27,8 +30,10 @@ Works on **Chrome**, **Microsoft Edge**, and **Firefox** (Manifest V3).
 ## Usage
 
 1. Open any web page and press **`Ctrl+F`** (or **`Ctrl+Shift+F`**, or click
-   the toolbar icon → *Open search bar*).
-2. Type a term. Click **+ Add search term** — or press **`Ctrl+=`** — for more.
+   the toolbar icon → *Open search bar*). If you select text on the page first,
+   it's used to pre-fill the first search term.
+2. Type a term — results update as you type (with a short 300 ms debounce).
+   Click **+ Add search term** — or press **`Ctrl+=`** — for more.
 3. Click the color swatch on a row to change that term's highlight color.
 4. Navigate matches with ▲ / ▼ or `Enter` / `Shift+Enter`. Press `Esc` to close.
 

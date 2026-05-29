@@ -24,6 +24,9 @@
     "#ea80fc", "#ffab40", "#84ffff", "#f48fb1"
   ];
 
+  // Delay before a typed query triggers a (potentially expensive) re-search.
+  const SEARCH_DEBOUNCE_MS = 300;
+
   const settings = {
     palette: DEFAULT_PALETTE.slice(),
     interceptCtrlF: true
@@ -35,6 +38,17 @@
   };
 
   let myFrameId = IS_TOP ? 0 : null;
+
+  // Text currently selected in this frame, trimmed. Used to seed the search
+  // bar with the page selection when it opens (like the native Ctrl+F).
+  function getSelectionText() {
+    try {
+      const sel = window.getSelection();
+      return sel ? sel.toString().trim() : "";
+    } catch (e) {
+      return "";
+    }
+  }
 
   // ---- frame messaging helpers --------------------------------------------
 
@@ -48,6 +62,14 @@
     api.runtime.sendMessage({ action: "ms-to-top", payload }, () => {
       void api.runtime.lastError;
     });
+  }
+
+  // Child frames: if this frame holds the active text selection, hand it to
+  // the top frame so it can seed the search bar (used by the toolbar button
+  // and the keyboard command, which reach every frame at once).
+  function forwardSelectionPrefill() {
+    const selection = getSelectionText();
+    if (selection) sendToTop({ type: "prefill-selection", selection });
   }
 
   if (!IS_TOP) {
@@ -287,7 +309,7 @@
 
   function scheduleSearch() {
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(broadcastSearch, 180);
+    searchTimer = setTimeout(broadcastSearch, SEARCH_DEBOUNCE_MS);
   }
 
   function navOrder() {
@@ -487,14 +509,38 @@
     persist();
   }
 
-  function openPanel() {
+  function openPanel(prefill) {
     if (!IS_TOP) return;
     if (!panel) buildPanel();
-    if (state.terms.length === 0) addTerm("");
+    const selection = typeof prefill === "string" ? prefill.trim() : "";
+    if (selection) {
+      // Seed the first term with the page selection, like the native Ctrl+F.
+      if (state.terms.length === 0) addTerm(selection);
+      else state.terms[0].query = selection;
+    } else if (state.terms.length === 0) {
+      addTerm("");
+    }
     panel.classList.add("ms-visible");
     state.open = true;
     syncOptButtons();
     renderRows();
+    if (selection) persist();
+    broadcastSearch();
+    const first = rowsEl.querySelector(".ms-input");
+    if (first) { first.focus(); first.select(); }
+  }
+
+  // Fill the first term from a selection that arrived after the panel opened
+  // (e.g. a selection living inside an iframe). Never clobbers a typed query.
+  function applySelectionPrefill(text) {
+    if (!IS_TOP || !state.open) return;
+    const selection = typeof text === "string" ? text.trim() : "";
+    if (!selection) return;
+    if (state.terms.length === 0) addTerm(selection);
+    else if (!String(state.terms[0].query).trim()) state.terms[0].query = selection;
+    else return; // a real query is already there — leave it alone
+    renderRows();
+    persist();
     broadcastSearch();
     const first = rowsEl.querySelector(".ms-input");
     if (first) { first.focus(); first.select(); }
@@ -508,9 +554,9 @@
     persist();
   }
 
-  function togglePanel() {
+  function togglePanel(prefill) {
     if (state.open) closePanel();
-    else openPanel();
+    else openPanel(prefill);
   }
 
   // ---- top-frame: handle results coming back from frames ------------------
@@ -538,7 +584,9 @@
         }
       }
     } else if (payload.type === "open-panel") {
-      openPanel();
+      openPanel(payload.selection);
+    } else if (payload.type === "prefill-selection") {
+      applySelectionPrefill(payload.selection);
     } else if (payload.type === "add-term") {
       addTermAndFocus();
     } else if (payload.type === "close-panel") {
@@ -577,8 +625,9 @@
       if (isFind && settings.interceptCtrlF) {
         e.preventDefault();
         e.stopPropagation();
-        if (IS_TOP) openPanel();
-        else sendToTop({ type: "open-panel" });
+        const selection = getSelectionText();
+        if (IS_TOP) openPanel(selection);
+        else sendToTop({ type: "open-panel", selection });
         return;
       }
 
@@ -622,9 +671,11 @@
     } else if (msg.action === "ms-from-frame") {
       handleFrameMessage(msg.frameId, msg.payload);
     } else if (msg.action === "toggle") {
-      if (IS_TOP) togglePanel();
+      if (IS_TOP) togglePanel(getSelectionText());
+      else forwardSelectionPrefill();
     } else if (msg.action === "open") {
-      if (IS_TOP) openPanel();
+      if (IS_TOP) openPanel(getSelectionText());
+      else forwardSelectionPrefill();
     } else if (msg.action === "settings-updated") {
       loadSettings().then(() => {
         if (IS_TOP && state.open) broadcastSearch();
